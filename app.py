@@ -26,7 +26,7 @@ def recommend_unheard_songs(user_id, top_n=5):
 # =====================================
 # Page Configuration
 # =====================================
-st.set_page_config(page_title="Dynamic Song Recommendation", page_icon="🎵", layout="wide")
+st.set_page_config(page_title="MUSICIFY", page_icon="🎵", layout="wide")
 
 # =====================================
 # Custom CSS & Styling
@@ -85,13 +85,10 @@ st.markdown("""
 # =====================================
 st.sidebar.title("About")
 st.sidebar.write("""
-This dynamic recommendation engine allows you to:
+This recommendation engine allows you to:
 - Input your **User ID**
 - Specify the **Number of Recommendations** you want
 - Get a list of songs you haven't heard yet.
-
-**Note on Background Music:**
-We have enabled autoplay for background music, but modern browsers may block autoplay until you interact with the page. If you don't hear music, try clicking or interacting with the page.
 
 **Instructions:**
 1. Enter a valid User ID.
@@ -127,8 +124,8 @@ st.markdown("""
 # =====================================
 # Main Section
 # =====================================
-st.title("Personalized Song Recommendations")
-st.markdown("Get new song suggestions based on what you haven't heard yet!")
+st.title("MUSICIFY")
+st.markdown("Discover Your Next Favorite Song")
 
 col1, col2 = st.columns(2)
 
