@@ -85,13 +85,10 @@ st.markdown("""
 # =====================================
 st.sidebar.title("About")
 st.sidebar.write("""
-This dynamic recommendation engine allows you to:
+This recommendation engine allows you to:
 - Input your **User ID**
 - Specify the **Number of Recommendations** you want
 - Get a list of songs you haven't heard yet.
-
-**Note on Background Music:**
-We have enabled autoplay for background music, but modern browsers may block autoplay until you interact with the page. If you don't hear music, try clicking or interacting with the page.
 
 **Instructions:**
 1. Enter a valid User ID.
