@@ -1,62 +1,154 @@
 import streamlit as st
 import pandas as pd
+import requests
 
-# Load the dataset
-@st.cache
-def load_data():
-    data = pd.read_csv('song_dataset.csv')
-    data = data[['user', 'title', 'artist_name']].drop_duplicates()
-    return data
+# =====================================
+# Load Data
+# =====================================
+data = pd.read_csv('song_dataset.csv')
+data = data[['user', 'title', 'artist_name']].drop_duplicates()
 
-data = load_data()
-
-# Recommendation function
-def recommend_popular_unheard_songs(user_id, top_n=5):
+# =====================================
+# Recommendation Logic
+# =====================================
+def recommend_unheard_songs(user_id, top_n=5):
+    # Get songs the user has listened to
     listened_songs = data[data['user'] == user_id]['title'].unique()
-    song_popularity = (
-        data.groupby(['title', 'artist_name'])['user']
-        .nunique()
-        .reset_index()
-        .rename(columns={'user': 'unique_user_count'})
-    )
-    unheard_songs = song_popularity[~song_popularity['title'].isin(listened_songs)]
-    recommendations = unheard_songs.sort_values(by='unique_user_count', ascending=False).head(top_n)
+    # Filter out songs the user has already listened to
+    unheard_songs = data[~data['title'].isin(listened_songs)]
     
-    if recommendations.empty:
-        return f"No popular unheard songs available for user: {user_id}"
+    if unheard_songs.empty:
+        return None
     
+    recommendations = unheard_songs[['title', 'artist_name']].drop_duplicates().head(top_n)
     return recommendations
 
-# Streamlit App Layout
-st.title("🎵 Music Recommendation System")
+# =====================================
+# Page Configuration
+# =====================================
+st.set_page_config(page_title="MUSICIFY", page_icon="🎵", layout="wide")
 
-st.write("""
-    Enter your User ID and select the songs you have already listened to.
-    We'll recommend new songs you might enjoy!
+# =====================================
+# Custom CSS & Styling
+# =====================================
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
+
+    html, body, [class*="css"]  {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+        background: linear-gradient(to right, #191414, #2e2e2e);
+        color: #FFFFFF;
+    }
+
+    .stDataFrame table {
+        background-color: rgba(0,0,0,0.6);
+    }
+
+    .stDataFrame td, .stDataFrame th {
+        color: #fff;
+    }
+
+    .stDataFrame thead tr th {
+        color: #1DB954 !important;
+    }
+
+    .stButton>button {
+        background-color: #1DB954;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 25px;
+        padding: 0.6rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+    .stButton>button:hover {
+        background-color: #1ed760;
+        cursor: pointer;
+    }
+
+    input[type="text"], input[type="number"] {
+        background-color: #333;
+        border: 1px solid #444;
+        color: #fff;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# =====================================
+# Sidebar
+# =====================================
+st.sidebar.title("About")
+st.sidebar.write("""
+This recommendation engine allows you to:
+- Input your **User ID**
+- Specify the **Number of Recommendations** you want
+- Get a list of songs you haven't heard yet.
+
+**Instructions:**
+1. Enter a valid User ID.
+2. Choose how many recommendations you'd like.
+3. Click **Get Recommendations** to see your personalized list!
 """)
 
-# User input
-user_id_input = st.text_input("Enter your User ID:", "")
+# =====================================
+# Lottie Animation
+# =====================================
+lottie_url = "https://assets1.lottiefiles.com/packages/lf20_8QvMNs.json"
+def load_lottieurl(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
 
-# Song selection
-unique_songs = sorted(data['title'].unique())
-selected_songs = st.multiselect(
-    "Select songs you have listened to:",
-    options=unique_songs,
-    help="Hold down the Ctrl (windows) or Cmd (Mac) button to select multiple options."
-)
+lottie_animation = load_lottieurl(lottie_url)
 
-# Generate recommendations
+if lottie_animation:
+    st.lottie(lottie_animation, height=200, key="music_animation")
+
+# =====================================
+# Autoplay Background Music
+# =====================================
+# Attempt to autoplay background music. Some browsers may block this until user interacts.
+st.markdown("""
+    <audio autoplay loop>
+        <source src="background_music.mp3" type="audio/mp3">
+    </audio>
+""", unsafe_allow_html=True)
+
+# =====================================
+# Main Section
+# =====================================
+st.title("MUSICIFY")
+st.markdown("Discover Your Next Favorite Song")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    user_id = st.text_input("Enter your User ID:")
+with col2:
+    top_n = st.number_input("Number of recommendations:", min_value=1, max_value=50, value=5)
+
 if st.button("Get Recommendations"):
-    if user_id_input:
-        recommendations = recommend_popular_unheard_songs(user_id_input, top_n=10)
-        if isinstance(recommendations, pd.DataFrame):
-            st.table(recommendations.rename(columns={
-                'title': 'Song Title',
-                'artist_name': 'Artist',
-                'unique_user_count': 'Popularity (Unique Listeners)'
-            }))
-        else:
-            st.warning(recommendations)
+    user_id_stripped = user_id.strip()
+    if user_id_stripped == "":
+        st.warning("Please enter a valid User ID.")
     else:
-        st.error("Please enter a valid User ID.")
+        recommended_songs = recommend_unheard_songs(user_id_stripped, top_n=top_n)
+        if recommended_songs is not None and not recommended_songs.empty:
+            st.success(f"Here are your top {top_n} recommendations:")
+            st.dataframe(recommended_songs.reset_index(drop=True))
+        else:
+            st.error(f"No unheard songs available for user: {user_id_stripped}.")
+
+
+
+
+
+
+
