@@ -88,15 +88,14 @@ st.sidebar.title("About")
 st.sidebar.write("""
 This dynamic recommendation engine allows you to:
 - Input your **User ID**
-- Specify the **Number of Recommendations** you want
-- Get top songs you haven't heard yet.
+- Specify the **Number of Recommendations**
 
 **Instructions:**
 1. Enter a valid User ID.
 2. Choose how many recommendations you'd like.
 3. Click **Get Recommendations**.
 
-Toggle the background music on or off, and adjust volume as desired.
+Use the **Play Background Music** button below to show the audio player, then press the play button on the player to start music. Automatic play may be blocked by your browser until you interact.
 
 **Data Disclaimer:**
 - Recommendations are based on the given dataset.
@@ -132,23 +131,14 @@ with col1:
 with col2:
     top_n = st.number_input("Number of recommendations:", min_value=1, max_value=50, value=5)
 
-# Background music toggle
-music_toggle = st.checkbox("Play Background Music", value=False)
-volume = st.slider("Music Volume", min_value=0.0, max_value=1.0, value=0.2, step=0.05)
-
-# Render the audio tag conditionally
-if music_toggle:
-    # Inject JS to set volume after loading
-    # This script sets the volume on the audio element after the element loads.
-    # Note: The volume setting is a best-effort approach. Some browsers limit auto-play volume changes.
-    st.markdown(f"""
-        <audio id="bg-music" autoplay loop>
+# Button to show the audio player
+if st.button("Play Background Music"):
+    # Show the audio player
+    st.markdown("""
+        <audio controls style="width:100%; outline:none;">
             <source src="background_music.mp3" type="audio/mp3">
+            Your browser does not support the audio element.
         </audio>
-        <script>
-        var audio = document.getElementById('bg-music');
-        audio.volume = {volume};
-        </script>
     """, unsafe_allow_html=True)
 
 # Button to get recommendations
@@ -163,3 +153,4 @@ if st.button("Get Recommendations"):
             st.dataframe(recommended_songs.reset_index(drop=True))
         else:
             st.error(f"No unheard songs available for user: {user_id_stripped}.")
+
