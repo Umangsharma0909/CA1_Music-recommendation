@@ -127,8 +127,8 @@ st.markdown("""
 # =====================================
 # Main Section
 # =====================================
-st.title("Personalized Song Recommendations")
-st.markdown("Get new song suggestions based on what you haven't heard yet!")
+st.title("MUSICIFY")
+st.markdown("Discover Your Next Favorite Song")
 
 col1, col2 = st.columns(2)
 
