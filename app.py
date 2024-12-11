@@ -85,10 +85,13 @@ st.markdown("""
 # =====================================
 st.sidebar.title("About")
 st.sidebar.write("""
-This recommendation engine allows you to:
+This dynamic recommendation engine allows you to:
 - Input your **User ID**
 - Specify the **Number of Recommendations** you want
 - Get a list of songs you haven't heard yet.
+
+**Note on Background Music:**
+We have enabled autoplay for background music, but modern browsers may block autoplay until you interact with the page. If you don't hear music, try clicking or interacting with the page.
 
 **Instructions:**
 1. Enter a valid User ID.
@@ -124,8 +127,8 @@ st.markdown("""
 # =====================================
 # Main Section
 # =====================================
-st.title("MUSICIFY")
-st.markdown("Discover Your Next Favorite Song")
+st.title("Personalized Song Recommendations")
+st.markdown("Get new song suggestions based on what you haven't heard yet!")
 
 col1, col2 = st.columns(2)
 
@@ -134,6 +137,7 @@ with col1:
 with col2:
     top_n = st.number_input("Number of recommendations:", min_value=1, max_value=50, value=5)
 
+# Button to generate recommendations
 if st.button("Get Recommendations"):
     user_id_stripped = user_id.strip()
     if user_id_stripped == "":
@@ -142,8 +146,18 @@ if st.button("Get Recommendations"):
         recommended_songs = recommend_unheard_songs(user_id_stripped, top_n=top_n)
         if recommended_songs is not None and not recommended_songs.empty:
             st.success(f"Here are your top {top_n} recommendations:")
+
+            # Display recommendations in a dropdown menu
+            song_options = [f"{row['title']} by {row['artist_name']}" for _, row in recommended_songs.iterrows()]
+            selected_song = st.selectbox("Select a song to view details:", options=song_options)
+
+            # Display the selected song's details
+            st.write(f"You selected: **{selected_song}**")
+
+            # Display recommendations as a dataframe (optional)
             st.dataframe(recommended_songs.reset_index(drop=True))
         else:
             st.error(f"No unheard songs available for user: {user_id_stripped}.")
+
 
 
